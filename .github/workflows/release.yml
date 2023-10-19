@@ -23,10 +23,7 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
           output-file: "false"
-
-      - name: Check if Changelog is Skipped
-        run: echo "Changelog Skipped: ${{ steps.changelog.outputs.skipped }}"
-
+          
       - name: Create Release
         if: ${{ steps.changelog.outputs.skipped != 'true' }}
         run: |
