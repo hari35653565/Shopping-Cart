@@ -1,20 +1,22 @@
-name: release
-
 on:
-  push:  
-    branches:
-      - main
+  push:
+   branches: 
+     - main
+  workflow_dispatch:   
 
-jobs: 
+jobs:
   release:
-    runs-on: ubuntu-latest
-    
-    steps:
+   runs-on: ubuntu-latest
+
+   steps:
+    - name: checkout
+      uses: actions/checkout@v2
+
     - name: Conventional Changelog Action
       id: changelog
       uses: TriPSs/conventional-changelog-action@v3
       with:
-        github-token: ${{ secrets.github_token }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
         output-file: "false"
 
     - name: Create Release
@@ -25,4 +27,4 @@ jobs:
       with:
         tag_name: ${{ steps.changelog.outputs.tag }}
         release_name: ${{ steps.changelog.outputs.tag }}
-        body: ${{ steps.changelog.outputs.clean_changelog }}    
+        body: ${{ steps.changelog.outputs.clean_changelog }}   
