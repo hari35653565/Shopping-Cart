@@ -1,30 +1,42 @@
+name: Release Workflow
+
 on:
   push:
-   branches: 
-     - main
-  workflow_dispatch:   
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   release:
-   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-   steps:
-    - name: checkout
-      uses: actions/checkout@v2
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-    - name: Conventional Changelog Action
-      id: changelog
-      uses: TriPSs/conventional-changelog-action@v3
-      with:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        output-file: "false"
+      - name: Debug Token
+        run: echo "Token is ${{ secrets.TOKEN }}"
+        
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          output-file: "false"
 
-    - name: Create Release
-      uses: actions/create-release@v1
-      if: ${{ steps.changelog.outputs.skipped == 'false' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
-      with:
-        tag_name: ${{ steps.changelog.outputs.tag }}
-        release_name: ${{ steps.changelog.outputs.tag }}
-        body: ${{ steps.changelog.outputs.clean_changelog }}   
+      - name: Check if Changelog is Skipped
+        run: echo "Changelog Skipped: ${{ steps.changelog.outputs.skipped }}"
+
+      - name: Create Release
+        if: ${{ steps.changelog.outputs.skipped != 'true' }}
+        run: |
+          echo "Creating release ${{ steps.changelog.outputs.tag }}"
+          # Your release creation logic goes here using GitHub API or other methods
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        with:
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          release_name: ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}    
+
+       
