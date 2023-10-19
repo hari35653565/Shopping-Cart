@@ -1,31 +1,20 @@
 name: release
 
 on:
-  push:
-   branches:
-     - main 
-
-jobs: 
-  release:
-   runs-on: ubuntu-latest
-
-   steps:
-    - name: checkout
-      uses: actions/checkout@v2
-
-    - name: Conventional Changelog Action
-      id: changelog
-      uses: TriPSs/conventional-changelog-action@v3
+   push:
+    branches:
+      - main
+    tags:
+      - "Version:*"
+   workflow_dispatch:
+  
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: christophebedard/tag-version-commit@v1
       with:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        output-file: "false"
-
-    - name: Create Release
-      uses: actions/create-release@v1
-      if: ${{ steps.changelog.outputs.skipped != 'true' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
-      with:
-        tag_name: ${{ steps.changelog.outputs.tag }}
-        release_name: ${{ steps.changelog.outputs.tag }}
-        body: ${{ steps.changelog.outputs.clean_changelog }} 
+        token: ${{ secrets.TOKEN_GITHUB }}
+        version_regex: 'Version: ([0-9]+\.[0-9]+\.[0-9]+)'
+        version_tag_prefix: 'prod-v'
